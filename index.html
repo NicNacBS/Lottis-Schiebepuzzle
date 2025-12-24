@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Lottis Schiebepuzzle 8x8</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  text-align: center;
+}
+#puzzle {
+  width: 400px;
+  height: 400px;
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+.tile {
+  width: 50px;
+  height: 50px;
+  background-image: url("bild.jpeg");
+  background-size: 400px 400px;
+  border: 1px solid #222;
+  cursor: pointer;
+}
+.empty {
+  background: none;
+  cursor: default;
+}
+</style>
+</head>
+<body>
+
+<h2>Lottis Schiebepuzzle 8x8</h2>
+<p>Klicke auf eine Kachel neben dem leeren Feld.</p>
+
+<div id="puzzle"></div>
+
+<script>
+const size = 8;
+const puzzle = document.getElementById("puzzle");
+let tiles = [];
+let emptyIndex = size * size - 1;
+
+// Kacheln erzeugen
+function createTiles() {
+  for (let i = 0; i < size * size; i++) {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.dataset.index = i;
+
+    const x = (i % size) * 50;
+    const y = Math.floor(i / size) * 50;
+    tile.style.backgroundPosition = `-${x}px -${y}px`;
+
+    tile.addEventListener("click", () => moveTile(i));
+    tiles.push(tile);
+  }
+}
+
+// Prüfen, ob Kachel neben leerer Kachel liegt
+function isNeighbor(i) {
+  const row = Math.floor(i / size);
+  const col = i % size;
+  const emptyRow = Math.floor(emptyIndex / size);
+  const emptyCol = emptyIndex % size;
+  return (row === emptyRow && Math.abs(col - emptyCol) === 1) ||
+         (col === emptyCol && Math.abs(row - emptyRow) === 1);
+}
+
+// Kachel verschieben
+function moveTile(i) {
+  if (!isNeighbor(i)) return;
+  [tiles[i], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[i]];
+  emptyIndex = i;
+  render();
+}
+
+// Puzzle mischen (1000 zufällige Schritte, garantiert lösbar)
+function shuffle() {
+  for (let i = 0; i < 1000; i++) {
+    const neighbors = [];
+    for (let j = 0; j < tiles.length; j++) {
+      if (isNeighbor(j)) neighbors.push(j);
+    }
+    const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+    moveTile(randomNeighbor);
+  }
+}
+
+// Puzzle im DOM anzeigen
+function render() {
+  puzzle.innerHTML = "";
+  tiles.forEach((tile, i) => {
+    if (i === emptyIndex) tile.classList.add("empty");
+    else tile.classList.remove("empty");
+    puzzle.appendChild(tile);
+  });
+}
+
+createTiles();
+shuffle();
+render();
+</script>
+
+</body>
+</html>
