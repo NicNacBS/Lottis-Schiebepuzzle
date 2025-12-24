@@ -5,43 +5,61 @@ index.html
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Schiebepuzzle – Live 2026</title>
+<title>Lottis Schiebepuzzle</title>
 <style>
-body { font-family: Arial, sans-serif; background:#111; color:#fff; text-align:center; }
-#puzzle { width:360px; height:360px; margin:20px auto; display:grid; grid-template-columns: repeat(4, 1fr); }
-.tile { border:1px solid #222; background-size:360px 360px; cursor:pointer; }
-.hidden { visibility:hidden; }
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  text-align: center;
+}
+#puzzle {
+  width: 360px;
+  height: 360px;
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.tile {
+  width: 90px;
+  height: 90px;
+  background-image: url("bild.jpg");
+  background-size: 360px 360px;
+  border: 1px solid #222;
+  cursor: pointer;
+}
+.empty {
+  background: none;
+  cursor: default;
+}
 </style>
 </head>
 <body>
-<h2>Schiebepuzzle – for Lotti</h2>
-<p id="status"></p>
+
+<h2>Lottis Schiebepuzzle</h2>
+<p>Klicke auf eine Kachel neben dem leeren Feld.</p>
+
 <div id="puzzle"></div>
 
 <script>
-const expiry = new Date("2025-12-24T23:59:00");
-if (new Date() > expiry) {
-  document.body.innerHTML = "<h1>Dieses Puzzle ist abgelaufen.</h1>";
-}
-
 const size = 4;
 const puzzle = document.getElementById("puzzle");
 let tiles = [];
+let emptyIndex = size * size - 1;
 
-function init() {
-  for (let i=0;i<size*size;i++) {
-    const d = document.createElement("div");
-    d.className = "tile";
-    d.style.backgroundImage = "url('bild.jpeg')";
-    const x = (i % size) * 120;
-    const y = Math.floor(i / size) * 120;
-    d.style.backgroundPosition = `-${x}px -${y}px`;
-    d.dataset.index = i;
-    tiles.push(d);
+function createTiles() {
+  for (let i = 0; i < size * size; i++) {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.dataset.index = i;
+
+    const x = (i % size) * 90;
+    const y = Math.floor(i / size) * 90;
+    tile.style.backgroundPosition = `-${x}px -${y}px`;
+
+    tile.addEventListener("click", () => moveTile(i));
+    tiles.push(tile);
   }
-  tiles[tiles.length-1].classList.add("hidden");
-  shuffle();
-  render();
 }
 
 function shuffle() {
@@ -50,10 +68,4 @@ function shuffle() {
 
 function render() {
   puzzle.innerHTML = "";
-  tiles.forEach(t => puzzle.appendChild(t));
-}
-
-init();
-</script>
-</body>
-</html>
+ 
