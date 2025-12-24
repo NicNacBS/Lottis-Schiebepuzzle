@@ -1,6 +1,47 @@
 code
 index.html
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Lottis Schiebepuzzle</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  text-align: center;
+}
+#puzzle {
+  width: 360px;
+  height: 360px;
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.tile {
+  width: 90px;
+  height: 90px;
+  background-image: url("bild.jpg");
+  background-size: 360px 360px;
+  border: 1px solid #222;
+  cursor: pointer;
+}
+.empty {
+  background: none;
+  cursor: default;
+}
+</style>
+</head>
+<body>
+
+<h2>Lottis Schiebepuzzle</h2>
+<p>Klicke auf eine Kachel neben dem leeren Feld.</p>
+
+<div id="puzzle"></div>
+
+<script>
 const size = 4;
 const puzzle = document.getElementById("puzzle");
 let tiles = [];
@@ -22,10 +63,7 @@ function createTiles() {
 }
 
 function shuffle() {
-  do {
-    tiles.sort(() => Math.random() - 0.5);
-  } while (!isSolvable() || isSolved()); // optional, um lösbares Puzzle zu garantieren
-  render();
+  tiles.sort(() => Math.random() - 0.5);
 }
 
 function render() {
@@ -33,52 +71,37 @@ function render() {
   tiles.forEach((tile, i) => {
     if (i === emptyIndex) {
       tile.classList.add("empty");
-      tile.style.background = "none";
     } else {
       tile.classList.remove("empty");
-      const x = (tile.dataset.index % size) * 90;
-      const y = Math.floor(tile.dataset.index / size) * 90;
-      tile.style.backgroundPosition = `-${x}px -${y}px`;
     }
     puzzle.appendChild(tile);
   });
 }
 
+function isNeighbor(i) {
+  const row = Math.floor(i / size);
+  const col = i % size;
+  const emptyRow = Math.floor(emptyIndex / size);
+  const emptyCol = emptyIndex % size;
+
+  return (
+    (row === emptyRow && Math.abs(col - emptyCol) === 1) ||
+    (col === emptyCol && Math.abs(row - emptyRow) === 1)
+  );
+}
+
 function moveTile(i) {
-  const neighbors = [
-    emptyIndex - 1, // links
-    emptyIndex + 1, // rechts
-    emptyIndex - size, // oben
-    emptyIndex + size // unten
-  ];
+  if (!isNeighbor(i)) return;
 
-  if (neighbors.includes(i)) {
-    [tiles[i], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[i]];
-    emptyIndex = i;
-    render();
-  }
-}
-
-// Optional: Prüfen, ob Puzzle gelöst ist
-function isSolved() {
-  for (let i = 0; i < tiles.length; i++) {
-    if (tiles[i].dataset.index != i) return false;
-  }
-  return true;
-}
-
-// Optional: Prüfen, ob Puzzle lösbar ist
-function isSolvable() {
-  let inversions = 0;
-  const arr = tiles.map(t => parseInt(t.dataset.index));
-  for (let i = 0; i < arr.length; i++) {
-    for (let j = i + 1; j < arr.length; j++) {
-      if (arr[i] > arr[j] && arr[i] !== emptyIndex && arr[j] !== emptyIndex) inversions++;
-    }
-  }
-  return inversions % 2 === 0;
+  [tiles[i], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[i]];
+  emptyIndex = i;
+  render();
 }
 
 createTiles();
 shuffle();
 render();
+</script>
+
+</body>
+</html>
